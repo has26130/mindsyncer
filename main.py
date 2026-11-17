@@ -5,42 +5,112 @@ import plotly.graph_objects as go
 import streamlit.components.v1 as components
 
 # ==========================================
-# 0. 페이지 기본 설정 & 반응형 커스텀 CSS
+# 0. 페이지 기본 설정 & 프리미엄 에디토리얼 CSS
 # ==========================================
 st.set_page_config(
-    page_title="Mind-Sync | 바이오리듬 & 번아웃 케어 학습 OS",
-    page_icon="🧠",
+    page_title="mindsyncer",
+    page_icon="✦",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 st.markdown("""
 <style>
-    .main-header {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-        color: white;
-        padding: 1.8rem 2rem;
-        border-radius: 16px;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+    html, body, [class*="css"] {
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     }
-    .main-header h1 {
+
+    /* 미니멀 & 하이엔드 브랜드 헤더 */
+    .brand-hero {
+        position: relative;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 2.2rem 2.6rem;
+        margin-bottom: 1.8rem;
+        box-shadow: 0 4px 24px -4px rgba(15, 23, 42, 0.04);
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+        overflow: hidden;
+    }
+    .brand-hero::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #0f172a 0%, #3b82f6 50%, #6366f1 100%);
+    }
+    .brand-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #64748b;
+    }
+    .status-dot {
+        width: 7px;
+        height: 7px;
+        background-color: #3b82f6;
+        border-radius: 50%;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+    }
+    .brand-title-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .brand-logo {
+        font-size: 2.55rem;
+        font-weight: 300;
+        letter-spacing: -0.04em;
+        color: #0f172a;
         margin: 0;
-        font-size: 2rem;
-        font-weight: 800;
-        color: #f8fafc;
+        line-height: 1.05;
     }
-    .main-header p {
-        margin: 0.4rem 0 0 0;
-        color: #cbd5e1;
-        font-size: 1rem;
+    .brand-logo strong {
+        font-weight: 800;
+        background: linear-gradient(135deg, #0f172a 0%, #2563eb 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .brand-logo .dot {
+        color: #3b82f6;
+        font-weight: 800;
+    }
+    .brand-tag {
+        font-size: 0.78rem;
+        font-weight: 500;
+        color: #475569;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 6px 14px;
+        border-radius: 999px;
+        letter-spacing: -0.01em;
+    }
+    .brand-subtitle {
+        margin: 0.15rem 0 0 0;
+        font-size: 0.98rem;
+        font-weight: 400;
+        color: #475569;
+        letter-spacing: -0.01em;
+        line-height: 1.5;
     }
     .metric-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 14px;
         padding: 1.2rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
         margin-bottom: 1rem;
     }
 </style>
@@ -169,8 +239,8 @@ def simulate_biorhythm(sleep_hours, recent_sleep_avg, wake_hour, sensitivity_lab
 # 3. 사이드바: 내 생체 데이터 입력 및 상황별 프리셋
 # ==========================================
 with st.sidebar:
-    st.markdown("## ⚙️ 내 바이오 프로필 설정")
-    st.caption("수면·카페인 상태에 따라 전체 앱의 스케줄과 타이머가 실시간 동기화됩니다.")
+    st.markdown("## ⚙️ 바이오 프로필 설정")
+    st.caption("수면·카페인 상태에 따라 전체 스케줄과 타이머가 실시간 동기화됩니다.")
 
     sleep_today = st.slider("🌙 어젯밤 수면 시간 (시간)", 2.0, 10.0, 5.5, 0.5)
     sleep_recent = st.slider("🛌 최근 3일 평균 수면 (시간)", 3.0, 10.0, 6.0, 0.5)
@@ -216,12 +286,21 @@ golden_time_str = peak_row["시각"]
 max_alertness = peak_row["뇌 각성도(%)"]
 
 # ==========================================
-# 4. 상단 헤더 & 핵심 상태 요약 배너
+# 4. 상단 헤더 (하이엔드 에디토리얼 스타일 - mindsyncer)
 # ==========================================
-st.markdown("""
-<div class="main-header">
-    <h1>🧠 Mind-Sync (마인드싱크)</h1>
-    <p>무작정 밤새우지 마세요. 수면·카페인 반감기·뇌 과학 데이터에 맞춘 올인원 바이오리듬 학습 OS</p>
+st.markdown(f"""
+<div class="brand-hero">
+    <div class="brand-eyebrow">
+        <span class="status-dot"></span>
+        <span>BIORHYTHM & COGNITIVE PACING ENGINE</span>
+    </div>
+    <div class="brand-title-row">
+        <h1 class="brand-logo">mind<strong>syncer</strong><span class="dot">.</span></h1>
+        <span class="brand-tag">Peak Alertness · {golden_time_str} ({max_alertness}%)</span>
+    </div>
+    <p class="brand-subtitle">
+        수면 부채와 카페인 대사 곡선을 정밀하게 추적하여, 당신의 뇌가 가장 깨어 있는 시간에 최적의 몰입을 설계합니다.
+    </p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -235,7 +314,7 @@ m1.metric(
 m2.metric(
     "⚡ 오늘 총 카페인 섭취량",
     f"{total_caffeine_today} mg",
-    delta="청소년 일일권장량(150mg) 초과!" if total_caffeine_today > 150 else "권장량 이내 안전",
+    delta="일일권장량(150mg) 초과" if total_caffeine_today > 150 else "권장량 이내 안전",
     delta_color="inverse" if total_caffeine_today > 150 else "normal"
 )
 m3.metric(
@@ -250,7 +329,7 @@ m4.metric(
 )
 
 # ==========================================
-# 5. 메인 4대 탭 구성 (간결한 이름)
+# 5. 메인 4대 탭 구성
 # ==========================================
 tab1, tab2, tab3, tab4 = st.tabs([
     "🧪 바이오리듬",
